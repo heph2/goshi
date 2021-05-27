@@ -3,8 +3,6 @@ package goshi
 // This interface implement the following methods for fetching
 // and downloading each page of a Manga Chapter
 type Scraper interface {
-	// This method search for the availability of Manga in the site scraped
-	//	FindManga(input string) []string
 	// This method fetch all the pages of a chapter and send the struct Page
 	// Populated with name and URL of the jpg
 	FetchChapter(chapterURL string, out chan<- Page)

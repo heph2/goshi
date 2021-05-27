@@ -11,6 +11,8 @@ import (
 	"git.mrkeebs.eu/goshi/goshi"
 )
 
+// ZipFiles receive the page struct from DownloadFile, add all the pages in
+// a struct, sort them and add all the pages in a zipArchive
 func ZipFiles(zipName string, in <-chan goshi.Page, done chan<- struct{}) {
 	var pages []goshi.Page
 
@@ -44,6 +46,8 @@ func ZipFiles(zipName string, in <-chan goshi.Page, done chan<- struct{}) {
 	done <- struct{}{}
 }
 
+// AddFile simply receive a *zipWriter, the file that has to be added, and just
+// add it to the archive
 func AddFile(zipWriter *zip.Writer, file bytes.Buffer, nameFile string) {
 
 	header := zip.FileHeader{

@@ -20,7 +20,7 @@ func spinner(delay time.Duration) {
 	}
 }
 
-// This function download the jpg given an URL, it uses
+// DownloadFile download the jpg given an URL, it uses
 // a custom http-header for avoiding cloudflare 404 Error
 func DownloadFile(in <-chan goshi.Page, out chan<- goshi.Page) {
 

@@ -27,6 +27,7 @@ var (
 	scraperPtr = flag.String("scraper", "", "Select scraper")
 )
 
+// GetScaper use scraperPtr and choose with which scraper fetch
 func GetScraper(scr string) (goshi.Scraper, error) {
 	switch scr {
 	case "mangaeden":
@@ -40,6 +41,7 @@ func GetScraper(scr string) (goshi.Scraper, error) {
 	return nil, errors.New("Source not supported")
 }
 
+// GetChapter use idPtr for search which chapter(s) should be downloaded
 func GetChapter(str string) []int {
 	var chapters []int
 	var s []string

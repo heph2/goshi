@@ -1,7 +1,3 @@
-/*
-   This package scrape results from mangaeden.com
-*/
-
 package scraper
 
 import (
@@ -12,11 +8,15 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Use an empty struct for the interface and implement the methods
 type MangaEdenScraper struct {
 }
 
+// BaseURL
 const MangaEdenURL = "https://www.mangaeden.com"
 
+// ScrapeChapters take the user search input, scrape with goquery all the
+// the availables chapters and return a slice with all the chapters
 func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {
 	// search for Italian manga
 	urlIta := "/it/it-manga/"
@@ -39,9 +39,9 @@ func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {
 	return chs
 }
 
-// This Function get the chapterUrl in input and return a slice
-// of string with all the pages URL e.g:
-// Chapter 825, we got : all the pages in the chapter 825 as URL
+// FetchChapter get the chapterURL as input, fetch with goquery all the urls for the
+// jpg images, and send them as a page struct into the channel
+// Then another function will elaborate those structs
 func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) {
 
 	// Get the Url for all the pages
@@ -50,23 +50,19 @@ func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page
 		log.Println("Error with the URL:", err)
 	}
 
-	// Concurrently get the images that has to be downloaded
 	doc.Find("#pageSelect option").Each(func(i int, s *goquery.Selection) {
 
 		page, _ := s.Attr("value")
 
 		var p goshi.Page
 		pageURL := MangaEdenURL + page
-		func(pageURL string) {
-			d, _ := goquery.NewDocument(pageURL)
-			img, _ := d.Find("a.next img").Attr("src")
-			p.Referer = MangaEdenURL
-			p.URL = "https:" + img
-			p.Name = fmt.Sprintf("%03d", i)
-			p.Num = i
+		d, _ := goquery.NewDocument(pageURL)
+		img, _ := d.Find("a.next img").Attr("src")
+		p.Referer = MangaEdenURL
+		p.URL = "https:" + img
+		p.Name = fmt.Sprintf("%03d", i)
+		p.Num = i
 
-			out <- p
-		}(pageURL)
-
+		out <- p
 	})
 }

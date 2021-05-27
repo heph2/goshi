@@ -11,7 +11,7 @@ import (
 
 const workers = 5
 
-// This function spawn n goroutines that will download concurrently
+// Pool spawn n goroutines that will download concurrently
 // all the pages of a selected chapter and add them to a zip archive.
 func Pool(scraper goshi.Scraper, chapterURL string) {
 	in := make(chan goshi.Page)

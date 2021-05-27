@@ -9,11 +9,15 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Use an empty struct for the interface and implement the methods
 type MangaWorldScraper struct {
 }
 
+// BaseURL
 const MangaWorldURL = "https://www.mangaworld.io"
 
+// ScrapeChapters take the user search input, scrape with goquery all the
+// the availables chapters and return a slice with all the chapters
 func (m *MangaWorldScraper) ScrapeChapters(input string) []goshi.Chapter {
 	search := MangaWorldURL + "/manga/1708/" + input
 
@@ -29,8 +33,12 @@ func (m *MangaWorldScraper) ScrapeChapters(input string) []goshi.Chapter {
 	return chs
 }
 
+// FetchChapter get the chapterURL as input, fetch with goquery all the urls for the
+// jpg images, and send them as a page struct into the channel
+// Then another function will elaborate those structs
 func (m *MangaWorldScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) {
 
+	// This orrible hacky workaround, found the last page of the chapter to fetch
 	doc, _ := goquery.NewDocument(chapterURL)
 	pag := doc.Find("select.page.custom-select option").Eq(0).First().Text()
 	slashIndex := strings.Index(pag, "/")
