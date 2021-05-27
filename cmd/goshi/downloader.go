@@ -1,13 +1,14 @@
-package cmd
+package main
 
 import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
-	"git.mrkeebs.eu/goshi/models"
+	"git.mrkeebs.eu/goshi/goshi"
 )
 
 func spinner(delay time.Duration) {
@@ -21,18 +22,25 @@ func spinner(delay time.Duration) {
 
 // This function download the jpg given an URL, it uses
 // a custom http-header for avoiding cloudflare 404 Error
-func DownloadFile(in <-chan models.Page, out chan<- models.Page) {
+func DownloadFile(in <-chan goshi.Page, out chan<- goshi.Page) {
 
 	for page := range in {
-
 		client := &http.Client{}
 		req, _ := http.NewRequest("GET", page.URL, nil)
-		req.Header.Set("Referer", "https://www2.mangaeden.com")
-		res, _ := client.Do(req)
+		req.Header.Set("Referer", page.Referer)
+		res, err := client.Do(req)
+		if err != nil {
+			log.Println("Client error:", err)
+		}
+		defer res.Body.Close()
 
 		var data bytes.Buffer
 
-		_, _ = io.Copy(&data, res.Body)
+		_, err = io.Copy(&data, res.Body)
+
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		page.Img = data
 
@@ -40,6 +48,5 @@ func DownloadFile(in <-chan models.Page, out chan<- models.Page) {
 		go spinner(100 * time.Millisecond)
 		out <- page
 
-		defer res.Body.Close()
 	}
 }

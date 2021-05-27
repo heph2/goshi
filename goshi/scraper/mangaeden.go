@@ -5,56 +5,65 @@
 package scraper
 
 import (
-	"git.mrkeebs.eu/goshi/models"
+	"fmt"
+	"log"
+
+	"git.mrkeebs.eu/goshi/goshi"
 	"github.com/PuerkitoBio/goquery"
 )
 
-const baseURL string = "https://www2.mangaeden.com"
-const baseURLIta string = baseURL + "/it/it-manga/"
+type MangaEdenScraper struct {
+}
 
-// This function use goquery for searching through mangaeden
-// and scrape all the chapter of the searched manga.
-// Then add it to a slice and returns all the chapters available.
-func MangaEden(input string) (results []models.Chapter) {
+const MangaEdenURL = "https://www.mangaeden.com"
 
-	search := baseURLIta + input
+func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {
+	// search for Italian manga
+	urlIta := "/it/it-manga/"
+	search := MangaEdenURL + urlIta + input
 
+	var chs []goshi.Chapter
 	doc, _ := goquery.NewDocument(search)
 	doc.Find("table tbody tr").Each(func(i int, s *goquery.Selection) {
-		var ch models.Chapter
+		var ch goshi.Chapter
 
 		ch.Name = s.Find("b").Eq(0).First().Text()
 		link, _ := s.Find("a").Eq(0).First().Attr("href")
-		ch.Link = baseURL + string(link)
+		ch.Link = MangaEdenURL + string(link)
 
 		// Append each chapter to the slice
-		results = append(results, ch)
+		chs = append(chs, ch)
 
 	})
 
-	return results
+	return chs
 }
 
 // This Function get the chapterUrl in input and return a slice
 // of string with all the pages URL e.g:
 // Chapter 825, we got : all the pages in the chapter 825 as URL
-func MangaEdenChapter(chapter string, out chan<- models.Page) {
+func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) {
 
 	// Get the Url for all the pages
-	doc, _ := goquery.NewDocument(chapter)
+	doc, err := goquery.NewDocument(chapterURL)
+	if err != nil {
+		log.Println("Error with the URL:", err)
+	}
 
 	// Concurrently get the images that has to be downloaded
 	doc.Find("#pageSelect option").Each(func(i int, s *goquery.Selection) {
 
 		page, _ := s.Attr("value")
 
-		var p models.Page
-		pageURL := baseURL + page
+		var p goshi.Page
+		pageURL := MangaEdenURL + page
 		func(pageURL string) {
 			d, _ := goquery.NewDocument(pageURL)
 			img, _ := d.Find("a.next img").Attr("src")
+			p.Referer = MangaEdenURL
 			p.URL = "https:" + img
-			p.Name = page
+			p.Name = fmt.Sprintf("%03d", i)
+			p.Num = i
 
 			out <- p
 		}(pageURL)

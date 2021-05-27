@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"archive/zip"
@@ -6,20 +6,28 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 
-	"git.mrkeebs.eu/goshi/models"
+	"git.mrkeebs.eu/goshi/goshi"
 )
 
-func ZipFiles(zipName string, in <-chan models.Page, done chan<- struct{}) {
-	var pages []models.Page
+func ZipFiles(zipName string, in <-chan goshi.Page, done chan<- struct{}) {
+	var pages []goshi.Page
 
-	// Add every page to pages
+	// Add every page to pages and sort them
 	for page := range in {
 		pages = append(pages, page)
 	}
+	// sorting
+	sort.SliceStable(pages, func(i, j int) bool {
+		return pages[i].Num < pages[j].Num
+	})
 
 	// Create the zip files that will stores all the chapter
-	zipFile, _ := os.Create(zipName)
+	zipFile, err := os.Create(zipName)
+	if err != nil {
+		log.Println(err)
+	}
 
 	// Close the zip after we finish
 	defer zipFile.Close()
@@ -31,7 +39,6 @@ func ZipFiles(zipName string, in <-chan models.Page, done chan<- struct{}) {
 	// Add files to ZipFiles
 	for _, file := range pages {
 		AddFile(zipWriter, file.Img, file.Name)
-		log.Println("Added")
 	}
 
 	done <- struct{}{}
@@ -46,5 +53,8 @@ func AddFile(zipWriter *zip.Writer, file bytes.Buffer, nameFile string) {
 
 	writer, _ := zipWriter.CreateHeader(&header)
 
-	_, _ = io.Copy(writer, &file)
+	_, err := io.Copy(writer, &file)
+	if err != nil {
+		log.Println("Error durant zipping", err)
+	}
 }
