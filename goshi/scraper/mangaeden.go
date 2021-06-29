@@ -15,6 +15,23 @@ type MangaEdenScraper struct {
 // BaseURL
 const MangaEdenURL = "https://www.mangaeden.com"
 
+func (m *MangaEdenScraper) SearchManga(input string) []goshi.Manga {
+	urlIta := "/it/it-directory/"
+	search := MangaEdenURL + urlIta + "/?title=" + input
+
+	var mangas []goshi.Manga
+	doc, _ := goquery.NewDocument(search)
+	doc.Find("#mangaList tr").Each(func(i int, s *goquery.Selection) {
+		var manga goshi.Manga
+
+		manga.Name = s.Find("td").First().Text()
+
+		mangas = append(mangas, manga)
+	})
+	
+	return mangas
+}
+
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters
 func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {

@@ -16,6 +16,23 @@ type MangaWorldScraper struct {
 // BaseURL
 const MangaWorldURL = "https://www.mangaworld.io"
 
+func (m *MangaWorldScraper) SearchManga(input string) []goshi.Manga {
+	urlIta := "/it/it-directory/"
+	search := MangaEdenURL + urlIta + "/?title=" + input
+
+	var mangas []goshi.Manga
+	doc, _ := goquery.NewDocument(search)
+	doc.Find(".openManga").Each(func(i int, s *goquery.Selection) {
+		var manga goshi.Manga
+
+		manga.Name = s.Text()
+
+		mangas = append(mangas, manga)
+	})
+	
+	return mangas
+}
+
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters
 func (m *MangaWorldScraper) ScrapeChapters(input string) []goshi.Chapter {

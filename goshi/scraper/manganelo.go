@@ -14,16 +14,36 @@ type MangaNeloScraper struct {
 // BaseURL
 const MangaNeloURL = "https://manganelo.tv"
 
+func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
+	urlIta := "/it/it-directory/"
+	search := MangaEdenURL + urlIta + "/?title=" + input
+
+	var mangas []goshi.Manga
+	doc, _ := goquery.NewDocument(search)
+	doc.Find(".openManga").Each(func(i int, s *goquery.Selection) {
+		var manga goshi.Manga
+
+		manga.Name = s.Text()
+
+		mangas = append(mangas, manga)
+	})
+	
+	return mangas
+}
+
+
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters
 func (m *MangaNeloScraper) ScrapeChapters(input string) []goshi.Chapter {
-	search := MangaNeloURL + "/search/" + input
+	//	search := MangaNeloURL + "/search/" + input
 
-	doc, _ := goquery.NewDocument(search)
-	manga, _ := doc.Find("a.a-h.text-nowrap.item-title").Eq(0).First().Attr("href")
+	//	fmt.Printf("searching %s\n", search)
+	//	doc, _ := goquery.NewDocument(search)
+	//	manga, _ := doc.Find("a.a-h.text-nowrap.item-title").Eq(0).First().Attr("href")
 
 	// Search all the chapter of `manga`
-	chapterSearch := MangaNeloURL + manga
+	chapterSearch := MangaNeloURL + "/manga/" + input
+	fmt.Printf("searching %s\n", chapterSearch)
 
 	var chs []goshi.Chapter
 	d, _ := goquery.NewDocument(chapterSearch)

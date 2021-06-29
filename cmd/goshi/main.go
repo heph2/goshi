@@ -25,6 +25,7 @@ var (
 	fetchPtr   = flag.String("fetch", "", "Fetch the available chapters for the manga selected")
 	idPtr      = flag.String("down", "", "Download a chapter given an ID")
 	scraperPtr = flag.String("scraper", "", "Select scraper")
+	searchPtr = flag.String("search", "", "Search a Manga")
 )
 
 // GetScaper use scraperPtr and choose with which scraper fetch
@@ -91,11 +92,20 @@ func main() {
 		os.Exit(1)
 	}
 
+
 	// Check which scraper is passed
 	scraper, err := GetScraper(*scraperPtr)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
+	}
+
+	if *searchPtr != "" {
+		available := scraper.SearchManga(*searchPtr)
+
+		for _, a := range available {
+			fmt.Println(a.Name)
+		}
 	}
 
 	// Search for the chapters available and print the name of the

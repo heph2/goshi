@@ -8,4 +8,6 @@ type Scraper interface {
 	FetchChapter(chapterURL string, out chan<- Page)
 	// This method scrape a manga and return the list of the available chapters
 	ScrapeChapters(url string) []Chapter
+	// This method search for a manga and return the list of manga availables
+	SearchManga(search string) []Manga
 }

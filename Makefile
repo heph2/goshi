@@ -5,12 +5,12 @@ DESTDIR =
 
 all: goshi
 
-saturn:
-	go build
+goshi:
+	cd cmd/goshi && go build
 
 clean:
 	rm -f goshi
 
 install: goshi
 	mkdir -p ${DESTDIR}${PREFIX}/bin/
-	install -m 0555 goshi ${DESTDIR}${PREFIX}/bin
+	cd cmd/goshi &&	install -m 0555 goshi ${DESTDIR}${PREFIX}/bin
