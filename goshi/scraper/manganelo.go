@@ -15,12 +15,14 @@ type MangaNeloScraper struct {
 const MangaNeloURL = "https://manganelo.tv"
 
 func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
-	urlIta := "/it/it-directory/"
-	search := MangaEdenURL + urlIta + "/?title=" + input
+	search := MangaNeloURL + "/search/" + input
 
 	var mangas []goshi.Manga
-	doc, _ := goquery.NewDocument(search)
-	doc.Find(".openManga").Each(func(i int, s *goquery.Selection) {
+	doc, err:= goquery.NewDocument(search)
+	if err != nil {
+		fmt.Println(err)
+	}
+	doc.Find(".item-title").Each(func(i int, s *goquery.Selection) {
 		var manga goshi.Manga
 
 		manga.Name = s.Text()

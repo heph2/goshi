@@ -1,5 +1,7 @@
 # Goshi
 
+![Gopher Berserk](assets/small-gopher-berserk.png)
+
 Tool for concurrently download Manga Scans.
 Actually the following sites are supported:
 - Mangaeden (currently Italian only)

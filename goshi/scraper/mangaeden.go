@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"regexp"
 	"git.mrkeebs.eu/goshi/goshi"
 	"github.com/PuerkitoBio/goquery"
 )
@@ -24,7 +25,13 @@ func (m *MangaEdenScraper) SearchManga(input string) []goshi.Manga {
 	doc.Find("#mangaList tr").Each(func(i int, s *goquery.Selection) {
 		var manga goshi.Manga
 
-		manga.Name = s.Find("td").First().Text()
+		name , _ := s.Find("td a").Attr("href")
+		re := regexp.MustCompile(`manga\/(.*?)\/`)
+		match := re.FindStringSubmatch(name)
+
+		if len(match) > 1 {
+			manga.Name = match[1]
+		}
 
 		mangas = append(mangas, manga)
 	})
