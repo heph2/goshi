@@ -1,6 +1,6 @@
 # Goshi
 
-![Gopher Berserk](https://git.mrkeebs.eu/goshi/tree/assets/small-gopher-berserk.png)
+![Gopher Berserk](assets/small-gopher-berserk.png)
 
 Tool for concurrently download Manga Scans.
 Actually the following sites are supported:
