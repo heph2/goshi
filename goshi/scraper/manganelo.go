@@ -18,7 +18,7 @@ func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
 	search := MangaNeloURL + "/search/" + input
 
 	var mangas []goshi.Manga
-	doc, err:= goquery.NewDocument(search)
+	doc, err := goquery.NewDocument(search)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -29,10 +29,9 @@ func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
 
 		mangas = append(mangas, manga)
 	})
-	
+
 	return mangas
 }
-
 
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters

@@ -29,7 +29,7 @@ func (m *MangaWorldScraper) SearchManga(input string) []goshi.Manga {
 
 		mangas = append(mangas, manga)
 	})
-	
+
 	return mangas
 }
 
