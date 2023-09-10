@@ -6,7 +6,7 @@ DESTDIR =
 all: goshi
 
 goshi:
-	cd cmd/goshi && go build
+	go build -o cmd/goshi/goshi ./cmd/goshi
 
 clean:
 	rm -f goshi
