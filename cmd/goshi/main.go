@@ -1,11 +1,11 @@
 /*
-   The main package get the manga name from arguments, then print
-   results, ask again to the user which chapter choose do download.
-   Scrape how many pages has the selected chapter, and then spawn
-   n goroutines for each pages to download. After that, send through
-   a channel the jpg to another goroutines that sequentually add
-   those jpg to a zip archive.
-*/
+ * The main package get the manga name from arguments, then print
+ * results, ask again to the user which chapter choose to download.
+ * Scrape how many pages has the selected chapter, and then spawn
+ * n goroutines for each pages to download. After that, send through
+ * a channel the jpg to another goroutines that sequentually add
+ * those jpg to a zip archive.
+ */
 package main
 
 import (
@@ -25,7 +25,7 @@ var (
 	fetchPtr   = flag.String("fetch", "", "Fetch the available chapters for the manga selected")
 	idPtr      = flag.String("down", "", "Download a chapter given an ID")
 	scraperPtr = flag.String("scraper", "", "Select scraper")
-	searchPtr = flag.String("search", "", "Search a Manga")
+	searchPtr  = flag.String("search", "", "Search a Manga")
 )
 
 // GetScaper use scraperPtr and choose with which scraper fetch
@@ -91,7 +91,6 @@ func main() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-
 
 	// Check which scraper is passed
 	scraper, err := GetScraper(*scraperPtr)
