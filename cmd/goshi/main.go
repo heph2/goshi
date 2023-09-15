@@ -100,7 +100,12 @@ func main() {
 	}
 
 	if *searchPtr != "" {
-		available := scraper.SearchManga(*searchPtr)
+		available, err := scraper.SearchManga(*searchPtr)
+		if err != nil {
+			log.Printf("failed to search for %q: %s",
+				*searchPtr, err)
+			os.Exit(1)
+		}
 
 		for _, a := range available {
 			fmt.Println(a.Name)
@@ -111,7 +116,13 @@ func main() {
 	// chapter associated to an ID
 	ids := make(map[int]string)
 	if *fetchPtr != "" {
-		for i, chapter := range scraper.ScrapeChapters(*fetchPtr) {
+		chapters, err := scraper.ScrapeChapters(*fetchPtr)
+		if err != nil {
+			log.Printf("failed to fetch chapters: %s", err)
+			os.Exit(1)
+		}
+
+		for i, chapter := range chapters {
 			fmt.Printf("ID:%d \t %s\n", i, chapter.Link)
 			ids[i] = chapter.Link
 		}

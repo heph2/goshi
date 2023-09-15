@@ -2,7 +2,6 @@ package scraper
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 
 	"git.mrkeebs.eu/goshi/goshi"
@@ -16,12 +15,16 @@ type MangaEdenScraper struct {
 // BaseURL
 const MangaEdenURL = "https://www.mangaeden.com"
 
-func (m *MangaEdenScraper) SearchManga(input string) []goshi.Manga {
+func (m *MangaEdenScraper) SearchManga(input string) ([]goshi.Manga, error) {
 	urlIta := "/it/it-directory/"
 	search := MangaEdenURL + urlIta + "/?title=" + input
 
 	var mangas []goshi.Manga
-	doc, _ := goquery.NewDocument(search)
+	doc, err := goquery.NewDocument(search)
+	if err != nil {
+		return mangas, err
+	}
+
 	doc.Find("#mangaList tr").Each(func(i int, s *goquery.Selection) {
 		var manga goshi.Manga
 
@@ -36,18 +39,22 @@ func (m *MangaEdenScraper) SearchManga(input string) []goshi.Manga {
 		mangas = append(mangas, manga)
 	})
 
-	return mangas
+	return mangas, nil
 }
 
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters
-func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {
+func (m *MangaEdenScraper) ScrapeChapters(input string) ([]goshi.Chapter, error) {
 	// search for Italian manga
 	urlIta := "/it/it-manga/"
 	search := MangaEdenURL + urlIta + input
 
 	var chs []goshi.Chapter
-	doc, _ := goquery.NewDocument(search)
+	doc, err := goquery.NewDocument(search)
+	if err != nil {
+		return chs, err
+	}
+
 	doc.Find("table tbody tr").Each(func(i int, s *goquery.Selection) {
 		var ch goshi.Chapter
 
@@ -60,18 +67,18 @@ func (m *MangaEdenScraper) ScrapeChapters(input string) []goshi.Chapter {
 
 	})
 
-	return chs
+	return chs, nil
 }
 
 // FetchChapter get the chapterURL as input, fetch with goquery all the urls for the
 // jpg images, and send them as a page struct into the channel
 // Then another function will elaborate those structs
-func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) {
+func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) error {
 
 	// Get the Url for all the pages
 	doc, err := goquery.NewDocument(chapterURL)
 	if err != nil {
-		log.Println("Error with the URL:", err)
+		return err
 	}
 
 	doc.Find("#pageSelect option").Each(func(i int, s *goquery.Selection) {
@@ -89,4 +96,6 @@ func (m *MangaEdenScraper) FetchChapter(chapterURL string, out chan<- goshi.Page
 
 		out <- p
 	})
+
+	return nil
 }

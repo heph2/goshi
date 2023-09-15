@@ -14,14 +14,15 @@ type MangaNeloScraper struct {
 // BaseURL
 const MangaNeloURL = "https://manganelo.tv"
 
-func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
+func (m *MangaNeloScraper) SearchManga(input string) ([]goshi.Manga, error) {
 	search := MangaNeloURL + "/search/" + input
 
 	var mangas []goshi.Manga
 	doc, err := goquery.NewDocument(search)
 	if err != nil {
-		fmt.Println(err)
+		return mangas, err
 	}
+
 	doc.Find(".item-title").Each(func(i int, s *goquery.Selection) {
 		var manga goshi.Manga
 
@@ -30,12 +31,12 @@ func (m *MangaNeloScraper) SearchManga(input string) []goshi.Manga {
 		mangas = append(mangas, manga)
 	})
 
-	return mangas
+	return mangas, err
 }
 
 // ScrapeChapters take the user search input, scrape with goquery all the
 // the availables chapters and return a slice with all the chapters
-func (m *MangaNeloScraper) ScrapeChapters(input string) []goshi.Chapter {
+func (m *MangaNeloScraper) ScrapeChapters(input string) ([]goshi.Chapter, error) {
 	//	search := MangaNeloURL + "/search/" + input
 
 	//	fmt.Printf("searching %s\n", search)
@@ -47,7 +48,11 @@ func (m *MangaNeloScraper) ScrapeChapters(input string) []goshi.Chapter {
 	fmt.Printf("searching %s\n", chapterSearch)
 
 	var chs []goshi.Chapter
-	d, _ := goquery.NewDocument(chapterSearch)
+	d, err := goquery.NewDocument(chapterSearch)
+	if err != nil {
+		return chs, err
+	}
+
 	d.Find("a.chapter-name.text-nowrap").Each(func(i int, s *goquery.Selection) {
 		var chapter goshi.Chapter
 
@@ -59,15 +64,19 @@ func (m *MangaNeloScraper) ScrapeChapters(input string) []goshi.Chapter {
 		chs = append(chs, chapter)
 
 	})
-	return chs
+
+	return chs, nil
 }
 
 // FetchChapter get the chapterURL as input, fetch with goquery all the urls for the
 // jpg images, and send them as a page struct into the channel
 // Then another function will elaborate those structs
-func (m *MangaNeloScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) {
+func (m *MangaNeloScraper) FetchChapter(chapterURL string, out chan<- goshi.Page) error {
 
-	doc, _ := goquery.NewDocument(chapterURL)
+	doc, err := goquery.NewDocument(chapterURL)
+	if err != nil {
+		return err
+	}
 
 	//	index := 1
 	doc.Find("img.img-loading").Each(func(i int, s *goquery.Selection) {
@@ -79,4 +88,5 @@ func (m *MangaNeloScraper) FetchChapter(chapterURL string, out chan<- goshi.Page
 		out <- p
 
 	})
+	return nil
 }
